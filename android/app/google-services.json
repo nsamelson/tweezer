@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "186008533111",
+    "project_id": "tweezer-ecam",
+    "storage_bucket": "tweezer-ecam.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186008533111:android:6600c6f5ac8fb54e3f2e72",
+        "android_client_info": {
+          "package_name": "com.example.tweezer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "186008533111-f25lq16c4j0jftsq80lprgh1dmprf957.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrMjuXXRi-1HKMJZ7V0yoJc4ZD_YChOYM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "186008533111-f25lq16c4j0jftsq80lprgh1dmprf957.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
