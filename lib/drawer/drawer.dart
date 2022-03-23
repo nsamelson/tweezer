@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tweezer/Views/profile_page.dart';
@@ -18,13 +20,11 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              MyHeaderDrawer(),
-              MyDrawerList(),
-            ],
-          ),
+        child: Column(
+          children: [
+            const MyHeaderDrawer(),
+            MyDrawerList(),
+          ],
         ),
       ),
     );
@@ -32,7 +32,7 @@ class _MyDrawerState extends State<MyDrawer> {
 
   Widget MyDrawerList() {
     return Container(
-      padding: EdgeInsets.only(top: 15),
+      padding: const EdgeInsets.only(top: 15),
       child: Column(
         children: [
           menuItem(1, "Home"),
@@ -46,10 +46,10 @@ class _MyDrawerState extends State<MyDrawer> {
     return Material(
       child: InkWell(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              Text(title, style: TextStyle(fontSize: 20)),
+              Text(title, style: const TextStyle(fontSize: 20)),
             ],
           ),
         ),

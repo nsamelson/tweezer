@@ -17,19 +17,20 @@ class _MyHeaderDrawerState extends State<MyHeaderDrawer> {
       color: Colors.blue,
       width: double.infinity,
       height: 200,
-      padding: EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-              margin: EdgeInsets.only(bottom: 10),
+              margin: const EdgeInsets.only(bottom: 10),
               height: 70,
               decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     image: AssetImage('assets/images/profile.jpg'),
                   ))),
-          Text("${_currentUser.displayName}", style: TextStyle(fontSize: 20)),
+          Text("${_currentUser.displayName}",
+              style: const TextStyle(fontSize: 20)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [

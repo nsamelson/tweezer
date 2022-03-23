@@ -12,9 +12,9 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search'),
+        title: const Text('Search'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Search Users', style: TextStyle(fontSize: 40)),
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:tweezer/fire_auth.dart';
 import 'package:tweezer/home.dart';
 import 'package:tweezer/validator.dart';
-import 'package:tweezer/Views/profile_page.dart';
 import 'package:tweezer/Views/register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -55,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Tweezer'),
+          title: const Text('Tweezer'),
         ),
         body: FutureBuilder(
             future: _initializeFirebase(),
@@ -90,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 8.0),
+                            const SizedBox(height: 8.0),
                             TextFormField(
                               controller: _passwordTextController,
                               focusNode: _focusPassword,
@@ -117,9 +116,9 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 24.0),
+                            const SizedBox(height: 24.0),
                             _isProcessing
-                                ? CircularProgressIndicator()
+                                ? const CircularProgressIndicator()
                                 : Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -167,14 +166,14 @@ class _LoginPageState extends State<LoginPage> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 24.0),
+                                      const SizedBox(width: 24.0),
                                       Expanded(
                                         child: ElevatedButton(
                                           onPressed: () {
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    RegisterPage(),
+                                                    const RegisterPage(),
                                               ),
                                             );
                                           },

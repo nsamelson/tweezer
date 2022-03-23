@@ -13,9 +13,9 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MyDrawer(),
-      appBar: AppBar(title: Text('Dashboard')),
-      body: Center(
+      drawer: const MyDrawer(),
+      appBar: AppBar(title: const Text('Dashboard')),
+      body: const Center(
         child: Text('Show Posts', style: TextStyle(fontSize: 40)),
       ),
     );
