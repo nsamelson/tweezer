@@ -1,9 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'Views/login_page.dart';
 
-void main() async {
-  await Firebase.initializeApp();
+void main() {
   runApp(const MyApp());
 }
 
