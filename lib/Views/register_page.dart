@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tweezer/fire_auth.dart';
 import 'package:tweezer/home.dart';
 import 'package:tweezer/validator.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);

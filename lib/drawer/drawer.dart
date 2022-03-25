@@ -3,6 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tweezer/Views/profile_page.dart';
+import '../Views/login_page.dart';
 import '../home.dart';
 import 'drawer_header.dart';
 
@@ -37,6 +38,7 @@ class _MyDrawerState extends State<MyDrawer> {
         children: [
           menuItem(1, "Home"),
           menuItem(2, "Profile"),
+          menuItem(3, "Log out"),
         ],
       ),
     );
@@ -62,10 +64,15 @@ class _MyDrawerState extends State<MyDrawer> {
             } else if (id == 2) {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => ProfilePage(_currentUser)));
+            } else if (id == 3) {
+              FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const LoginPage(),
+                ),
+              );
             }
           });
-          // Navigator.of(context).pushReplacement(MaterialPageRoute(
-          //     builder: (context) => ProfilePage(_currentUser)));
         },
       ),
     );
