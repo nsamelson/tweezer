@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tweezer/Views/edit_profile.dart';
 import 'package:tweezer/Views/login_page.dart';
 import 'package:tweezer/drawer/drawer.dart';
 
@@ -71,7 +72,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     Row(children: [
                       const SizedBox(width: 275),
                       ElevatedButton(
-                          onPressed: () {}, child: const Text("Edit profile"))
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => EditProfile(_currentUser),
+                              ),
+                            );
+                          },
+                          child: const Text("Edit profile"),
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                          ))
                     ]),
                     const SizedBox(height: 10),
                     Row(children: [
@@ -88,10 +101,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     ]),
                     const SizedBox(height: 5),
                     Row(
-                      children: const [
+                      children: [
                         SizedBox(width: 25),
                         Text(
-                          'Good morning, we are here',
+                          _userData['bio'],
                           style:
                               TextStyle(fontSize: 16.0, color: Colors.black54),
                           textAlign: TextAlign.left,
@@ -99,28 +112,30 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     const SizedBox(height: 5),
-                    Row(children: [
-                      const SizedBox(width: 25),
-                      const Text(
-                        "Tweezes 25",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                        textAlign: TextAlign.left,
-                      ),
-                      const SizedBox(width: 25),
-                      Text(
-                        "Followers ${_userData['Followers']}",
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.black),
-                        textAlign: TextAlign.left,
-                      ),
-                      const SizedBox(width: 25),
-                      Text(
-                        "Following ${_userData['Followers']}",
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.black),
-                        textAlign: TextAlign.left,
-                      ),
-                    ]),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // const SizedBox(width: 25),
+                          const Text(
+                            "Tweezes 25",
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                          ),
+                          // const SizedBox(width: 25),
+                          Text(
+                            "Followers ${_userData['Followers']}",
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                          ),
+                          // const SizedBox(width: 25),
+                          Text(
+                            "Following ${_userData['Followers']}",
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                          ),
+                        ]),
                     const SizedBox(height: 5),
                     const Divider(
                       color: Colors.black,
