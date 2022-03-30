@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tweezer/Views/profile_page.dart';
-
-import '../home.dart';
 import '../validator.dart';
 
 class EditProfile extends StatefulWidget {
@@ -27,6 +25,8 @@ class _EditProfileState extends State<EditProfile> {
     final User _currentUser = widget.user;
     CollectionReference users = db.collection('users');
 
+    print(_currentUser.displayName);
+    print(_currentUser.uid);
     return FutureBuilder(
         future: users.doc(_currentUser.uid).get(),
         builder:
@@ -193,6 +193,9 @@ class _EditProfileState extends State<EditProfile> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
+                                final credential = EmailAuthProvider.credential(
+                                    email: _currentUser.email!,
+                                    password: _userData['password']);
                                 final updateData = db
                                     .collection('users')
                                     .doc(_currentUser.uid);
@@ -201,6 +204,11 @@ class _EditProfileState extends State<EditProfile> {
                                   'bio': _bioTextController.text,
                                   'password': _passwordTextController.text
                                 });
+
+                                _currentUser
+                                    .reauthenticateWithCredential(credential);
+                                _currentUser.updatePassword(
+                                    _passwordTextController.text);
                                 Navigator.of(context).pushAndRemoveUntil(
                                   MaterialPageRoute(
                                     builder: (context) =>

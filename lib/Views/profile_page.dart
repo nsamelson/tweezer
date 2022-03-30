@@ -31,7 +31,8 @@ class _ProfilePageState extends State<ProfilePage> {
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
-            return const Text('Something went wrong');
+            return const Text('Something went wrong',
+                textAlign: TextAlign.center);
           }
 
           if (snapshot.hasData && !snapshot.data!.exists) {
