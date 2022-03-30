@@ -2,8 +2,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'drawer/drawer.dart';
-import 'package:tweezer/fire_auth.dart';
 import 'Views/profile_page.dart';
 import 'Views/dashboard.dart';
 import 'Views/search.dart';
@@ -18,7 +16,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final User _currentUser = FirebaseAuth.instance.currentUser!;
 
   final List<Widget> tabs = [
     Dashboard(),

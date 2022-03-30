@@ -1,6 +1,9 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tweezer/Views/profile_page.dart';
+import '../Views/login_page.dart';
 import '../home.dart';
 import 'drawer_header.dart';
 
@@ -18,13 +21,11 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              MyHeaderDrawer(),
-              MyDrawerList(),
-            ],
-          ),
+        child: Column(
+          children: [
+            const MyHeaderDrawer(),
+            MyDrawerList(),
+          ],
         ),
       ),
     );
@@ -32,11 +33,12 @@ class _MyDrawerState extends State<MyDrawer> {
 
   Widget MyDrawerList() {
     return Container(
-      padding: EdgeInsets.only(top: 15),
+      padding: const EdgeInsets.only(top: 15),
       child: Column(
         children: [
           menuItem(1, "Home"),
           menuItem(2, "Profile"),
+          menuItem(3, "Log out"),
         ],
       ),
     );
@@ -46,10 +48,10 @@ class _MyDrawerState extends State<MyDrawer> {
     return Material(
       child: InkWell(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              Text(title, style: TextStyle(fontSize: 20)),
+              Text(title, style: const TextStyle(fontSize: 20)),
             ],
           ),
         ),
@@ -62,10 +64,15 @@ class _MyDrawerState extends State<MyDrawer> {
             } else if (id == 2) {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => ProfilePage(_currentUser)));
+            } else if (id == 3) {
+              FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const LoginPage(),
+                ),
+              );
             }
           });
-          // Navigator.of(context).pushReplacement(MaterialPageRoute(
-          //     builder: (context) => ProfilePage(_currentUser)));
         },
       ),
     );

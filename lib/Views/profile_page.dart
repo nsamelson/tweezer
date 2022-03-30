@@ -12,7 +12,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isSigningOut = false;
   late User _currentUser;
 
   @override
@@ -24,9 +23,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MyDrawer(),
+      drawer: const MyDrawer(),
       appBar: AppBar(
-        title: Text('Tweezer'),
+        title: const Text('Tweezer'),
       ),
       body: Center(
         child: Column(
@@ -36,23 +35,23 @@ class _ProfilePageState extends State<ProfilePage> {
               'Username : ${_currentUser.displayName}',
               style: Theme.of(context).textTheme.bodyText1,
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Text(
               'Email: ${_currentUser.email}',
               style: Theme.of(context).textTheme.bodyText1,
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
 
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
-                    builder: (context) => LoginPage(),
+                    builder: (context) => const LoginPage(),
                   ),
                 );
               },
-              child: Text('Log out'),
+              child: const Text('Log out'),
             )
           ],
         ),
