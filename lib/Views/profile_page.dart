@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tweezer/Views/edit_profile.dart';
-import 'package:tweezer/Views/login_page.dart';
 import 'package:tweezer/drawer/drawer.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -54,7 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                        image: NetworkImage(_userData['Profile picture']),
+                        image: NetworkImage(_userData['profile cover']),
                         fit: BoxFit.cover,
                       )),
                       child: Container(
@@ -63,7 +62,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Container(
                           alignment: Alignment(-0.9, 3),
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(_userData['profile']),
+                            backgroundImage:
+                                NetworkImage(_userData['profile picture']),
                             radius: 45.0,
                           ),
                         ),
@@ -117,21 +117,22 @@ class _ProfilePageState extends State<ProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           // const SizedBox(width: 25),
-                          const Text(
-                            "Tweezes 25",
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                            textAlign: TextAlign.left,
-                          ),
-                          // const SizedBox(width: 25),
                           Text(
-                            "Followers ${_userData['Followers']}",
+                            "Tweezes ${_userData['tweezes']}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,
                           ),
                           // const SizedBox(width: 25),
                           Text(
-                            "Following ${_userData['Followers']}",
+                            "Followers ${_userData['followers']}",
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                          ),
+                          // const SizedBox(width: 25),
+                          Text(
+                            "Following ${_userData['following']}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,

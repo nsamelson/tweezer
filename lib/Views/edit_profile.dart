@@ -86,8 +86,8 @@ class _EditProfileState extends State<EditProfile> {
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
                                       fit: BoxFit.cover,
-                                      image:
-                                          NetworkImage(_userData['profile']))),
+                                      image: NetworkImage(
+                                          _userData['profile picture']))),
                             ),
                             Positioned(
                               bottom: 0,

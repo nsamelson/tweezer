@@ -45,7 +45,7 @@ class _MyHeaderDrawerState extends State<MyHeaderDrawer> {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
-                            image: NetworkImage(_userData['profile']),
+                            image: NetworkImage(_userData['profile picture']),
                           ))),
                   Text("${_currentUser.displayName}",
                       style: const TextStyle(fontSize: 20)),
