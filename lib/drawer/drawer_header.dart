@@ -51,10 +51,12 @@ class _MyHeaderDrawerState extends State<MyHeaderDrawer> {
                       style: const TextStyle(fontSize: 20)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text("Followers 20", style: TextStyle(fontSize: 15)),
-                      SizedBox(width: 20.0),
-                      Text("Following 10", style: TextStyle(fontSize: 15)),
+                    children: [
+                      Text("Followers ${_userData['followers']}",
+                          style: const TextStyle(fontSize: 15)),
+                      const SizedBox(width: 20.0),
+                      Text("Following ${_userData['following']}",
+                          style: const TextStyle(fontSize: 15)),
                     ],
                   ),
                 ],

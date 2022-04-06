@@ -14,7 +14,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  bool _isObscure = true;
+  final bool _isObscure = true;
 
   final _usernameTextController = TextEditingController();
   final _bioTextController = TextEditingController();

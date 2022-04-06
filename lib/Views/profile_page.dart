@@ -56,11 +56,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         image: NetworkImage(_userData['profile cover']),
                         fit: BoxFit.cover,
                       )),
-                      child: Container(
+                      child: SizedBox(
                         width: double.infinity,
                         height: 145,
                         child: Container(
-                          alignment: Alignment(-0.9, 3),
+                          alignment: const Alignment(-0.9, 3),
                           child: CircleAvatar(
                             backgroundImage:
                                 NetworkImage(_userData['profile picture']),
@@ -103,11 +103,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 5),
                     Row(
                       children: [
-                        SizedBox(width: 25),
+                        const SizedBox(width: 25),
                         Text(
                           _userData['bio'],
-                          style:
-                              TextStyle(fontSize: 16.0, color: Colors.black54),
+                          style: const TextStyle(
+                              fontSize: 16.0, color: Colors.black54),
                           textAlign: TextAlign.left,
                         ),
                       ],
@@ -150,41 +150,5 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           return const Text('loading');
         });
-    // return Scaffold(
-    //   drawer: const MyDrawer(),
-    //   appBar: AppBar(
-    //     title: const Text('Tweezer'),
-    //   ),
-    //   body: Center(
-    //     child: Column(
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         Text(
-    //           'Username : ${_currentUser.displayName}',
-    //           style: Theme.of(context).textTheme.bodyText1,
-    //         ),
-    //         const SizedBox(height: 16.0),
-    //         Text(
-    //           'Email: ${_currentUser.email}',
-    //           style: Theme.of(context).textTheme.bodyText1,
-    //         ),
-    //         const SizedBox(height: 16.0),
-    //         ElevatedButton(
-    //           onPressed: () async {
-    //             print(_userData['email']);
-    //             // await FirebaseAuth.instance.signOut();
-
-    //             // Navigator.of(context).pushReplacement(
-    //             //   MaterialPageRoute(
-    //             //     builder: (context) => const LoginPage(),
-    //             //   ),
-    //             // );
-    //           },
-    //           child: const Text('Log out'),
-    //         )
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }
