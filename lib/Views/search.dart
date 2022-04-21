@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 
 class Search extends StatefulWidget {
-  const Search({Key? key}) : super(key: key);
+  Search({Key? key}) : super(key: key);
 
   @override
   State<Search> createState() => _SearchState();
@@ -10,10 +9,10 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   static const historyLength = 5;
-
-  List<String> _searchHistory = ["coucou", "faim", "test", "pedro"];
+  final List<String> _searchHistory = ["hello", "there", "general", "kenobi"];
   late List<String> filteredSearchHistory;
   String selectedTerm = "";
+  bool hideSearchHistory = false;
 
   // filter the search from the history (if I type "t", only "test" will remain)
   List<String> filteredSearchTerms({
@@ -52,120 +51,115 @@ class _SearchState extends State<Search> {
     addSearchTerm(term);
   }
 
-  late FloatingSearchBarController controller;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    controller = FloatingSearchBarController();
+    _controller = TextEditingController();
     filteredSearchHistory = filteredSearchTerms(filter: null);
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FloatingSearchBar(
-        controller: controller,
-        body: SearchResultsListView(
-          searchTerm: selectedTerm,
-        ),
-        transition: CircularFloatingSearchBarTransition(),
-        physics: const BouncingScrollPhysics(),
-        title: Text(
-          selectedTerm,
-          style: Theme.of(context).textTheme.headline6,
-        ),
-        hint: 'Search a user ...',
-        actions: [
-          FloatingSearchBarAction.searchToClear(),
-        ],
-        onQueryChanged: (query) {
-          setState(() {
-            filteredSearchHistory = filteredSearchTerms(filter: query);
-          });
-        },
-        onSubmitted: (query) {
-          setState(() {
-            addSearchTerm(query);
-            selectedTerm = query;
-          });
-          controller.close();
-        },
-        builder: (context, transition) {
-          return ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Material(
-                color: Colors.white,
-                elevation: 4,
-                child: Builder(
-                  builder: (context) {
-                    if (filteredSearchHistory.isEmpty &&
-                        controller.query.isEmpty) {
-                      return Container(
-                        height: 56,
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Start Searching',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.caption,
-                        ),
-                      );
-                    } else if (filteredSearchHistory.isEmpty) {
-                      return ListTile(
-                        title: Text(controller.query),
-                        leading: const Icon(Icons.search),
-                        onTap: () {
-                          setState(() {
-                            addSearchTerm(controller.query);
-                            selectedTerm = controller.query;
-                          });
-                          controller.close();
-                        },
-                      );
-                    } else {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: filteredSearchHistory
-                            .map((term) => ListTile(
-                                  title: Text(
-                                    term,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  leading: const Icon(Icons.history),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      setState(() {
-                                        deleteSearchTerm(term);
-                                      });
-                                    },
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      putSearchTermFirst(term);
-                                      selectedTerm = term;
-                                    });
-                                    controller.close();
-                                  },
-                                ))
-                            .toList(),
-                      );
-                    }
-                  },
-                ),
-              ));
-        },
-      ),
-    );
+        appBar: AppBar(
+            // The search area here
+            title: Container(
+          width: double.infinity,
+          height: 40,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(5)),
+          child: Center(
+            child: TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: _controller.clear,
+                    ),
+                    hintText: 'Search a user...',
+                    border: InputBorder.none),
+                onSubmitted: (text) {
+                  setState(() {
+                    addSearchTerm(text);
+                    selectedTerm = text;
+                    // _controller.clear();
+                  });
+                },
+                onChanged: (text) {
+                  // print('First text field: $text');
+                  setState(() {
+                    filteredSearchHistory = filteredSearchTerms(filter: text);
+                  });
+                }),
+          ),
+        )),
+        body: Column(
+          children: [
+            Material(
+              color: Colors.white,
+              elevation: 4,
+              child: Builder(builder: (context) {
+                if (filteredSearchHistory.isEmpty && _controller.text.isEmpty) {
+                  return Container(
+                    height: 56,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Start Searching',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.caption,
+                    ),
+                  );
+                } else {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: filteredSearchHistory
+                        .map((term) => ListTile(
+                              title: Text(
+                                term,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              leading: const Icon(Icons.history),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    deleteSearchTerm(term);
+                                  });
+                                },
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  putSearchTermFirst(term);
+                                  selectedTerm = term;
+                                  _controller.text = term;
+                                });
+
+                                // _controller.clear();
+                              },
+                            ))
+                        .toList(),
+                  );
+                }
+              }),
+            ),
+            Column(
+              children: [Text(selectedTerm)],
+            )
+            // SearchResultsListView(searchTerm: selectedTerm)
+          ],
+        ));
   }
 }
 
@@ -196,10 +190,9 @@ class SearchResultsListView extends StatelessWidget {
       ));
     }
 
-    final fsb = FloatingSearchBar.of(context);
+    // final fsb = FloatingSearchBar.of(context);
 
     return ListView(
-      padding: EdgeInsets.only(top: fsb!.style.height+ fsb.style.margins.vertical),
       children: List.generate(
           50,
           (index) => ListTile(
