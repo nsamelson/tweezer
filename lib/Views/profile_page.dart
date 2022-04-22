@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:tweezer/Views/edit_profile.dart';
 import 'package:tweezer/drawer/drawer.dart';
 
+import '../widgets/tweezes.dart';
+
 class ProfilePage extends StatefulWidget {
   final User user;
   const ProfilePage(this.user, {Key? key}) : super(key: key);
@@ -15,10 +17,29 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late User _currentUser;
   FirebaseFirestore db = FirebaseFirestore.instance;
+  int _itemCount = 5;
+
+  //Function to get the number of posts from this user
+  Future<int> getCount() async {
+    DocumentReference reference = db.collection('users').doc(_currentUser.uid);
+    final QuerySnapshot qSnap = await db
+        .collection('tweezes')
+        .where("user_id", isEqualTo: reference)
+        .get();
+    final int nbr = qSnap.size;
+    return nbr;
+  }
 
   @override
   void initState() {
     _currentUser = widget.user;
+
+    getCount().then((value) {
+      setState(() {
+        _itemCount = value;
+      });
+    });
+
     super.initState();
   }
 
@@ -48,6 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               body: Center(
                 child: Column(
+                  //Show the cover pictures, the username and the bio
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
@@ -113,24 +135,23 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     const SizedBox(height: 5),
+
+                    //Row to show the following/follow data
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // const SizedBox(width: 25),
                           Text(
                             "Tweezes ${_userData['tweezes']}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,
                           ),
-                          // const SizedBox(width: 25),
                           Text(
                             "Followers ${_userData['followers']}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,
                           ),
-                          // const SizedBox(width: 25),
                           Text(
                             "Following ${_userData['following']}",
                             style: const TextStyle(
@@ -142,6 +163,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Divider(
                       color: Colors.black,
                       thickness: 0.5,
+                    ),
+
+                    //List view to show the tweezes of the user
+                    Expanded(
+                      child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          itemCount: _itemCount,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Tweezes();
+                          }),
                     ),
                   ],
                 ),
