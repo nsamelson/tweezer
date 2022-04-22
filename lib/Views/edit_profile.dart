@@ -161,9 +161,6 @@ class _EditProfileState extends State<EditProfile> {
                               ),
                             )),
                       ),
-                      // buildTextField("Username", "Demon", false),
-                      // buildTextField("Bio", "Today is beautiful", false),
-                      // buildTextField("Password", "*********", true),
                       const SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -244,25 +241,4 @@ class _EditProfileState extends State<EditProfile> {
           return const Text('loading');
         });
   }
-
-  // Widget buildTextField(
-  //     String labelText, String placeholder, bool isPasswordTextField) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 30),
-
-  //     // child: TextField(
-  //     //   obscureText: isPasswordTextField ? isObscurePassword : false,
-  //     //   decoration: InputDecoration(
-  //     //       suffixIcon: isPasswordTextField
-  //     //           ? IconButton(
-  //     //               onPressed: () {},
-  //     //               icon: const Icon(Icons.remove_red_eye, color: Colors.grey))
-  //     //           : null,
-  //     //       labelText: labelText,
-  //     //       floatingLabelBehavior: FloatingLabelBehavior.always,
-  //     //       hintStyle: const TextStyle(
-  //     //           fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
-  //     // ),
-  //   );
-  // }
 }
