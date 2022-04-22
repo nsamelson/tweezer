@@ -114,41 +114,20 @@ class _RegisterPageState extends State<RegisterPage> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        _isProcessing = true;
-                                      });
-
-                                      if (_registerFormKey.currentState!
-                                          .validate()) {
-                                        User? user = await FireAuth
-                                            .registerUsingEmailPassword(
-                                          username:
-                                              _usernameTextController.text,
-                                          email: _emailTextController.text,
-                                          password:
-                                              _passwordTextController.text,
-                                        );
-
-                                        setState(() {
-                                          _isProcessing = false;
-                                        });
-
-                                        if (user != null) {
-                                          Navigator.of(context)
-                                              .pushAndRemoveUntil(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  Home(user: user),
-                                            ),
-                                            ModalRoute.withName('/'),
-                                          );
-                                        }
-                                      }
+                                    onPressed: () {
+                                      registeCheck();
                                     },
                                     child: const Text(
                                       'Sign up',
                                       style: TextStyle(color: Colors.white),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.blue,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 50),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
                                     ),
                                   ),
                                 )
@@ -163,5 +142,32 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  Future registeCheck() async {
+    setState(() {
+      _isProcessing = true;
+    });
+
+    if (_registerFormKey.currentState!.validate()) {
+      User? user = await FireAuth.registerUsingEmailPassword(
+        username: _usernameTextController.text,
+        email: _emailTextController.text,
+        password: _passwordTextController.text,
+      );
+
+      setState(() {
+        _isProcessing = false;
+      });
+
+      if (user != null) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => Home(user: user),
+          ),
+          ModalRoute.withName('/'),
+        );
+      }
+    }
   }
 }

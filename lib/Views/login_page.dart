@@ -164,6 +164,14 @@ class _LoginPageState extends State<LoginPage> {
                                             style:
                                                 TextStyle(color: Colors.white),
                                           ),
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.blue,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 50),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 24.0),
@@ -181,6 +189,14 @@ class _LoginPageState extends State<LoginPage> {
                                             'Register',
                                             style:
                                                 TextStyle(color: Colors.white),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.blue,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 50),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
                                           ),
                                         ),
                                       ),

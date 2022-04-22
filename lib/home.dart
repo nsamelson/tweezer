@@ -8,6 +8,7 @@ import 'Views/search.dart';
 
 class Home extends StatefulWidget {
   final User user;
+  // ignore: use_key_in_widget_constructors
   const Home({required this.user});
 
   @override
