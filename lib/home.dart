@@ -19,7 +19,7 @@ class _HomeState extends State<Home> {
 
   final List<Widget> tabs = [
     Dashboard(),
-    Search(),
+    Search(FirebaseAuth.instance.currentUser!),
     ProfilePage(FirebaseAuth.instance.currentUser!)
   ];
 
