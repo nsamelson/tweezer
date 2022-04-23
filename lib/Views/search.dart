@@ -38,8 +38,15 @@ class _SearchState extends State<Search> {
     List<String> history = reference.data()!["search history"].cast<String>();
     // print(history);
     _searchHistory = history.cast<String>();
-    filteredSearchHistory = _searchHistory;
+    // filteredSearchHistory = _searchHistory;
+    filteredSearchHistory = filteredSearchTerms(filter: null);
     // return history;
+  }
+
+  Future<void> setSearchHistory() async {
+    DocumentSnapshot reference =
+        await db.collection('users').doc(_currentUser.uid).get();
+    //TODO: add to the database https://firebase.flutter.dev/docs/firestore/usage/
   }
 
   // add a new searched item to history
@@ -77,8 +84,8 @@ class _SearchState extends State<Search> {
   void initState() {
     _currentUser = widget.user;
 
-    _controller = TextEditingController();
     getSearchHistory();
+    _controller = TextEditingController();
     // filteredSearchHistory = filteredSearchTerms(filter: null);
 
     super.initState();
@@ -105,9 +112,9 @@ class _SearchState extends State<Search> {
             child: TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                     suffixIcon: IconButton(
-                        icon: Icon(Icons.clear),
+                        icon: const Icon(Icons.clear),
                         onPressed: () {
                           setState(() {
                             clearSearch();
@@ -146,18 +153,12 @@ class _SearchState extends State<Search> {
                       return const Text('Document does not exist');
                     }
                     if (snapshot.connectionState == ConnectionState.done) {
-                      // List<String> history =
-                      //     snapshot.data!["search history"].cast<String>();
-                      // print(history);
-
-                      // _searchHistory = history;
-
                       return Material(
                         color: Colors.white,
                         elevation: 4,
                         child: Builder(builder: (context) {
                           if (filteredSearchHistory.isEmpty &&
-                              _controller.text.isEmpty) {
+                              selectedTerm == "") {
                             return Container(
                               height: 56,
                               width: double.infinity,
@@ -205,11 +206,44 @@ class _SearchState extends State<Search> {
                         }),
                       );
                     }
-                    return const Text("");
+                    return Material(
+                        color: Colors.white,
+                        elevation: 4,
+                        child: Container(
+                          height: 56,
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Start Searching',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                        ));
                   }),
-              SearchResultsListView(
-                searchTerm: selectedTerm,
-              )
+              Builder(builder: (context) {
+                if (selectedTerm == "") {
+                  return Center(
+                      heightFactor: 5,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Icon(
+                            Icons.search,
+                            size: 24,
+                          ),
+                          Text(
+                            'Start searching',
+                            style: Theme.of(context).textTheme.headline5,
+                          )
+                        ],
+                      ));
+                } else {
+                  return SearchResultsListView(
+                    searchTerm: selectedTerm,
+                  );
+                }
+              })
             ],
           ))
         ]));
@@ -263,59 +297,42 @@ class SearchResultsListView extends StatelessWidget {
               var pp = data['profile picture'];
               users.add([name, bio, pp]);
             }
-            if (searchTerm == "") {
-              return Center(
-                  heightFactor: 5,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      const Icon(
-                        Icons.search,
-                        size: 24,
-                      ),
-                      Text(
-                        'Start searching',
-                        style: Theme.of(context).textTheme.headline5,
-                      )
-                    ],
-                  ));
-            } else {
-              return Column(
-                children: users
-                    .map((term) => Card(
-                        child: InkWell(
-                            splashColor: Colors.blue.withAlpha(30),
-                            onTap: () {
-                              watchProfile(term);
-                            },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundImage: NetworkImage(term[2]),
-                                    radius: 24,
-                                  ),
-                                  title: Text(term[0]),
-                                  subtitle: Text(
-                                    term[1],
-                                    maxLines: 3,
-                                  ),
-                                  trailing: TextButton(
-                                    child: const Text('Follow'),
-                                    onPressed: () {
-                                      followUser(term);
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ))
 
-                        // _controller.clear();
-                        ))
-                    .toList(),
-              );
-            }
+            return Column(
+              children: users
+                  .map((term) => Card(
+                      child: InkWell(
+                          splashColor: Colors.blue.withAlpha(30),
+                          onTap: () {
+                            watchProfile(term);
+                          },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(term[2]),
+                                  radius: 24,
+                                ),
+                                title: Text(term[0]),
+                                subtitle: Text(
+                                  term[1],
+                                  maxLines: 3,
+                                ),
+                                trailing: TextButton(
+                                  child: const Text('Follow'),
+                                  onPressed: () {
+                                    followUser(term);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ))
+
+                      // _controller.clear();
+                      ))
+                  .toList(),
+            );
           }
           return Center(
               heightFactor: 5,
