@@ -38,25 +38,54 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final User _currentUser = widget.user;
-    return Scaffold(
-      drawer: const MyDrawer(),
-      appBar: AppBar(title: const Text('Dashboard')),
-      body: ListView.builder(
-        itemCount: _itemCount,
-        itemBuilder: (BuildContext context, int index) {
-          return Tweezes();
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => NewTweez(_currentUser),
+    CollectionReference ref = db.collection('tweezes');
+    var username;
+
+    return FutureBuilder(
+      future: ref.get(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Something went wrong',
+              textAlign: TextAlign.center);
+        }
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          List tweezes = [];
+          for (var queryDocumentSnapshot in snapshot.data!.docs) {
+            Map<String, dynamic> data = queryDocumentSnapshot.data();
+            var content = data["content"];
+            var date = data["created_at"];
+            var username = data["username"];
+            var profilePicture = data["profile_picture"];
+            tweezes.add([content, date, username, profilePicture]);
+          }
+
+          return Scaffold(
+            drawer: const MyDrawer(),
+            appBar: AppBar(title: const Text('Dashboard')),
+            body: SingleChildScrollView(
+              child: Column(
+                children: tweezes
+                    .map((e) => Card(
+                          child: Tweezes(e[0], e[1], e[2], e[3]),
+                        ))
+                    .toList(),
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => NewTweez(_currentUser),
+                  ),
+                );
+              },
+              child: Icon(Icons.edit),
             ),
           );
-        },
-        child: Icon(Icons.edit),
-      ),
+        }
+        return Text("loading");
+      },
     );
   }
 }

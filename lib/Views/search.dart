@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:tweezer/Views/profile_page.dart';
+import 'package:tweezer/Views/user_page.dart';
+import 'package:tweezer/fire_auth.dart';
 
 class Search extends StatefulWidget {
   final User user;
@@ -79,8 +83,11 @@ class _SearchState extends State<Search> {
     selectedTerm = "";
   }
 
-  void showProfile(user) {
+  void showProfile(user) async {
     //TODO: go to user profile
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => UserPage(_currentUser, user[0])),
+    );
   }
 
   late TextEditingController _controller;

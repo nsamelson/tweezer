@@ -1,52 +1,72 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tweezer/Views/edit_profile.dart';
-import 'package:tweezer/drawer/drawer.dart';
 
+import '../drawer/drawer.dart';
 import '../widgets/tweezes.dart';
+import 'edit_profile.dart';
 
-class ProfilePage extends StatefulWidget {
-  final User user;
-  const ProfilePage(this.user, {Key? key}) : super(key: key);
+class UserPage extends StatefulWidget {
+  final User current_user;
+  final String page_username;
+  const UserPage(this.current_user, this.page_username, {Key? key})
+      : super(key: key);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<UserPage> createState() => _UserPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _UserPageState extends State<UserPage> {
   late User _currentUser;
+  late String page_username;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   @override
   void initState() {
-    _currentUser = widget.user;
+    _currentUser = widget.current_user;
+    page_username = widget.page_username;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference users = db.collection('users');
-    final Query query = db
-        .collection('tweezes')
-        .where("username", isEqualTo: _currentUser.displayName);
+    final userQuery =
+        db.collection('users').where("username", isEqualTo: page_username);
+    final Query tweezesQuery =
+        db.collection('tweezes').where("username", isEqualTo: page_username);
 
     return FutureBuilder(
-        future: users.doc(_currentUser.uid).get(),
-        builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        future: userQuery.get(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return const Text('Something went wrong',
                 textAlign: TextAlign.center);
           }
 
-          if (snapshot.hasData && !snapshot.data!.exists) {
-            return const Text('Document does not exist');
-          }
-
           if (snapshot.connectionState == ConnectionState.done) {
-            Map<String, dynamic> _userData =
-                snapshot.data!.data() as Map<String, dynamic>;
+            List _userData = [];
+            for (var queryDocumentSnapshot in snapshot.data!.docs) {
+              Map<String, dynamic> data = queryDocumentSnapshot.data();
+              var profile_cover = data['profile cover'];
+              var profile_picture = data['profile picture'];
+              var username = data['username'];
+              var bio = data['bio'];
+              var nbr_tweezes = data['tweezes'];
+              var followers = data['followers'];
+              var following = data['following'];
+              var userId = data['id'];
+              _userData.add([
+                profile_cover,
+                profile_picture,
+                username,
+                bio,
+                nbr_tweezes,
+                followers,
+                following,
+                userId
+              ]);
+              print(_userData[0][0]);
+            }
             return Scaffold(
               drawer: const MyDrawer(),
               appBar: AppBar(
@@ -61,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                        image: NetworkImage(_userData['profile cover']),
+                        image: NetworkImage(_userData[0][0]),
                         fit: BoxFit.cover,
                       )),
                       child: SizedBox(
@@ -70,8 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Container(
                           alignment: const Alignment(-0.9, 3),
                           child: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(_userData['profile picture']),
+                            backgroundImage: NetworkImage(_userData[0][1]),
                             radius: 45.0,
                           ),
                         ),
@@ -82,13 +101,20 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(width: 275),
                       ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => EditProfile(_currentUser),
-                              ),
-                            );
+                            setState(() {
+                              db
+                                  .collection('users')
+                                  .doc(_userData[0][7])
+                                  .update(
+                                      {'followers': FieldValue.increment(1)});
+                              db
+                                  .collection('users')
+                                  .doc(_currentUser.uid)
+                                  .update(
+                                      {'following': FieldValue.increment(1)});
+                            });
                           },
-                          child: const Text("Edit profile"),
+                          child: const Text("Follow"),
                           style: ElevatedButton.styleFrom(
                             primary: Colors.blue,
                             shape: RoundedRectangleBorder(
@@ -99,7 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Row(children: [
                       const SizedBox(width: 25),
                       Text(
-                        _userData['username'],
+                        _userData[0][2],
                         style: const TextStyle(
                             fontSize: 20,
                             color: Colors.black,
@@ -113,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         const SizedBox(width: 25),
                         Text(
-                          _userData['bio'],
+                          _userData[0][3],
                           style: const TextStyle(
                               fontSize: 16.0, color: Colors.black54),
                           textAlign: TextAlign.left,
@@ -127,19 +153,19 @@ class _ProfilePageState extends State<ProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            "Tweezes ${_userData['tweezes']}",
+                            "Tweezes ${_userData[0][4]}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,
                           ),
                           Text(
-                            "Followers ${_userData['followers']}",
+                            "Followers ${_userData[0][5]}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,
                           ),
                           Text(
-                            "Following ${_userData['following']}",
+                            "Following ${_userData[0][6]}",
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black),
                             textAlign: TextAlign.left,
@@ -153,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     Expanded(
                         child: FutureBuilder(
-                            future: query.get(),
+                            future: tweezesQuery.get(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<QuerySnapshot> snapshot) {
                               if (snapshot.hasError) {

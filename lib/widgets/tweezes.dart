@@ -5,7 +5,13 @@ import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
 
 class Tweezes extends StatefulWidget {
-  const Tweezes({Key? key}) : super(key: key);
+  final String content;
+  final String date;
+  final String username;
+  final String profilePicture;
+  const Tweezes(this.content, this.date, this.username, this.profilePicture,
+      {Key? key})
+      : super(key: key);
 
   @override
   State<Tweezes> createState() => _TweezesState();
@@ -15,29 +21,33 @@ class _TweezesState extends State<Tweezes> {
   @override
   Widget build(BuildContext context) {
     final TextStyle? contentTheme = Theme.of(context).textTheme.bodyText1;
-    final String content = "Good morniiiinngggg :)))))";
-    String formattedDate =
-        DateFormat('dd-MM-yyyy - kk:mm').format(DateTime.now());
+    // const String content = "Good morniiiinngggg :)))))";
+    // String formattedDate =
+    //     DateFormat('dd-MM-yyyy - kk:mm').format(DateTime.now());
 
     return AspectRatio(
         aspectRatio: 5 / 2,
-        child: Card(
-            child: Column(
+        child: Column(
           children: [
             Row(
               children: <Widget>[
-                const Expanded(
+                Expanded(
                   flex: 1,
                   child: CircleAvatar(
-                    child: Text('P'),
+                    backgroundImage: NetworkImage(widget.profilePicture),
                   ),
                 ),
+                const SizedBox(width: 10),
                 Expanded(
                   flex: 7,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const <Widget>[Text("Pedro")],
+                    children: <Widget>[
+                      Text(widget.username,
+                          style: const TextStyle(
+                              fontSize: 17.5, fontWeight: FontWeight.bold))
+                    ],
                   ),
                 )
               ],
@@ -53,7 +63,12 @@ class _TweezesState extends State<Tweezes> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         const SizedBox(height: 20),
-                        Text(content, style: contentTheme),
+                        Row(
+                          children: [
+                            const SizedBox(width: 10),
+                            Text(widget.content, style: contentTheme),
+                          ],
+                        ),
                       ],
                     ),
                   )
@@ -77,11 +92,11 @@ class _TweezesState extends State<Tweezes> {
                   icon: const Icon(Icons.share),
                 ),
                 const SizedBox(width: 90),
-                Text(formattedDate)
+                Text(widget.date)
               ],
             )
           ],
-        )));
+        ));
   }
 
   Future<bool> onLikeButtonTapped(bool isLiked) async {
