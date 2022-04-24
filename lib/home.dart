@@ -8,6 +8,7 @@ import 'Views/search.dart';
 
 class Home extends StatefulWidget {
   final User user;
+  // ignore: use_key_in_widget_constructors
   const Home({required this.user});
 
   @override
@@ -18,7 +19,7 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
 
   final List<Widget> tabs = [
-    Dashboard(),
+    Dashboard(FirebaseAuth.instance.currentUser!),
     Search(FirebaseAuth.instance.currentUser!),
     ProfilePage(FirebaseAuth.instance.currentUser!)
   ];

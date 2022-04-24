@@ -24,6 +24,14 @@ class FireAuth {
           "username": username,
           "email": email,
           "password": password,
+          "bio": "",
+          "followers": 0,
+          "following": 0,
+          "tweezes": 0,
+          "profile picture":
+              "https://firebasestorage.googleapis.com/v0/b/tweezer-ecam.appspot.com/o/profiles%2FProfile%20pictures%2Fblank-profile-picture-973460_1280.webp?alt=media&token=ee3911d9-d138-4b6c-8b0e-32e157da82b6",
+          "profile cover":
+              "https://firebasestorage.googleapis.com/v0/b/tweezer-ecam.appspot.com/o/profiles%2FProfile%20covers%2Fdefault-cover.webp?alt=media&token=c1611beb-78b3-4914-824b-d566995a91c2",
         });
         db.collection('usernames').doc(username).set({});
       } else {
