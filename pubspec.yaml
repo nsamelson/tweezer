@@ -41,6 +41,7 @@ dependencies:
   cloud_firestore: ^1.0.7
   firebase_storage: ^8.0.5
   material_floating_search_bar: ^0.3.7
+  # toggle_switch: ^2.0.1
   # path_provider: ^2.0.9
 
 

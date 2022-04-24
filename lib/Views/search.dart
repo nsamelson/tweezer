@@ -13,7 +13,7 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   static const historyLength = 5;
   late List<String> _searchHistory = [];
-  late List<String> filteredSearchHistory;
+  late List<String> filteredSearchHistory = [];
   String selectedTerm = "";
   FirebaseFirestore db = FirebaseFirestore.instance;
   late User _currentUser;
@@ -44,9 +44,10 @@ class _SearchState extends State<Search> {
   }
 
   Future<void> setSearchHistory() async {
-    DocumentSnapshot reference =
-        await db.collection('users').doc(_currentUser.uid).get();
-    //TODO: add to the database https://firebase.flutter.dev/docs/firestore/usage/
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(_currentUser.uid)
+        .update({'search history': _searchHistory});
   }
 
   // add a new searched item to history
@@ -78,6 +79,10 @@ class _SearchState extends State<Search> {
     selectedTerm = "";
   }
 
+  void showProfile(user) {
+    //TODO: go to user profile
+  }
+
   late TextEditingController _controller;
 
   @override
@@ -95,12 +100,15 @@ class _SearchState extends State<Search> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+
+    setSearchHistory();
   }
 
   @override
   Widget build(BuildContext context) {
     CollectionReference ref = db.collection('users');
     return Scaffold(
+        // appBar
         appBar: AppBar(
             // The search area here
             title: Container(
@@ -138,6 +146,7 @@ class _SearchState extends State<Search> {
         )),
         body: Column(children: [
           Expanded(
+              //history
               child: ListView(
             children: [
               FutureBuilder(
@@ -221,6 +230,7 @@ class _SearchState extends State<Search> {
                           ),
                         ));
                   }),
+              //search results
               Builder(builder: (context) {
                 if (selectedTerm == "") {
                   return Center(
@@ -239,116 +249,92 @@ class _SearchState extends State<Search> {
                         ],
                       ));
                 } else {
-                  return SearchResultsListView(
-                    searchTerm: selectedTerm,
-                  );
+                  String limit = "";
+                  if (selectedTerm != "") {
+                    final strFrontCode =
+                        selectedTerm.substring(0, selectedTerm.length - 1);
+                    final strEndCode = selectedTerm.characters.last;
+                    limit = strFrontCode +
+                        String.fromCharCode(strEndCode.codeUnitAt(0) + 1);
+                  }
+
+                  return FutureBuilder(
+                      future: ref
+                          .where("username",
+                              isGreaterThanOrEqualTo: selectedTerm)
+                          .where("username", isLessThan: limit)
+                          .get(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text('Something went wrong',
+                              textAlign: TextAlign.center);
+                        }
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          List users = [];
+                          // String isFollowing = "Follow";
+
+                          for (var queryDocumentSnapshot
+                              in snapshot.data!.docs) {
+                            Map<String, dynamic> data =
+                                queryDocumentSnapshot.data();
+                            var name = data['username'];
+                            var bio = data['bio'];
+                            var pp = data['profile picture'];
+                            users.add([name, bio, pp]);
+                          }
+
+                          return Column(
+                            children: users
+                                .map((term) => Card(
+                                    child: InkWell(
+                                        splashColor: Colors.blue.withAlpha(30),
+                                        onTap: () {
+                                          showProfile(term);
+                                        },
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            ListTile(
+                                              leading: CircleAvatar(
+                                                backgroundImage:
+                                                    NetworkImage(term[2]),
+                                                radius: 24,
+                                              ),
+                                              title: Text(term[0]),
+                                              subtitle: Text(
+                                                term[1],
+                                                maxLines: 3,
+                                              ),
+                                            ),
+                                          ],
+                                        ))
+
+                                    // _controller.clear();
+                                    ))
+                                .toList(),
+                          );
+                        }
+                        return Center(
+                            heightFactor: 5,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Icon(
+                                  Icons.search,
+                                  size: 24,
+                                ),
+                                Text(
+                                  'Start searching',
+                                  style: Theme.of(context).textTheme.headline5,
+                                )
+                              ],
+                            ));
+                      });
                 }
               })
             ],
           ))
         ]));
-  }
-}
-
-class SearchResultsListView extends StatelessWidget {
-  final String searchTerm;
-  FirebaseFirestore db = FirebaseFirestore.instance;
-
-  SearchResultsListView({
-    Key? key,
-    required this.searchTerm,
-  }) : super(key: key);
-
-  void followUser(user) {
-    //TODO: follow user call to db
-  }
-
-  void watchProfile(user) {
-    //TODO: go to user profile
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    CollectionReference ref = db.collection('users');
-
-    String limit = "";
-    if (searchTerm != "") {
-      final strFrontCode = searchTerm.substring(0, searchTerm.length - 1);
-      final strEndCode = searchTerm.characters.last;
-      limit = strFrontCode + String.fromCharCode(strEndCode.codeUnitAt(0) + 1);
-    }
-
-    return FutureBuilder(
-        future: ref
-            .where("username", isGreaterThanOrEqualTo: searchTerm)
-            .where("username", isLessThan: limit)
-            .get(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return const Text('Something went wrong',
-                textAlign: TextAlign.center);
-          }
-          if (snapshot.connectionState == ConnectionState.done) {
-            List users = [];
-            for (var queryDocumentSnapshot in snapshot.data!.docs) {
-              Map<String, dynamic> data = queryDocumentSnapshot.data();
-              var name = data['username'];
-              var bio = data['bio'];
-              var pp = data['profile picture'];
-              users.add([name, bio, pp]);
-            }
-
-            return Column(
-              children: users
-                  .map((term) => Card(
-                      child: InkWell(
-                          splashColor: Colors.blue.withAlpha(30),
-                          onTap: () {
-                            watchProfile(term);
-                          },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(term[2]),
-                                  radius: 24,
-                                ),
-                                title: Text(term[0]),
-                                subtitle: Text(
-                                  term[1],
-                                  maxLines: 3,
-                                ),
-                                trailing: TextButton(
-                                  child: const Text('Follow'),
-                                  onPressed: () {
-                                    followUser(term);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ))
-
-                      // _controller.clear();
-                      ))
-                  .toList(),
-            );
-          }
-          return Center(
-              heightFactor: 5,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const Icon(
-                    Icons.search,
-                    size: 24,
-                  ),
-                  Text(
-                    'Start searching',
-                    style: Theme.of(context).textTheme.headline5,
-                  )
-                ],
-              ));
-        });
   }
 }
