@@ -17,35 +17,21 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late User _currentUser;
   FirebaseFirestore db = FirebaseFirestore.instance;
-  int _itemCount = 5;
-
-  //Function to get the number of posts from this user
-  Future<int> getCount() async {
-    DocumentReference reference = db.collection('users').doc(_currentUser.uid);
-    final QuerySnapshot qSnap = await db
-        .collection('tweezes')
-        .where("user_id", isEqualTo: reference)
-        .get();
-    final int nbr = qSnap.size;
-    return nbr;
-  }
 
   @override
   void initState() {
     _currentUser = widget.user;
-
-    getCount().then((value) {
-      setState(() {
-        _itemCount = value;
-      });
-    });
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     CollectionReference users = db.collection('users');
+    final Query query = db
+        .collection('tweezes')
+        .orderBy('created_at', descending: true)
+        .where("username", isEqualTo: _currentUser.displayName);
+
     return FutureBuilder(
         future: users.doc(_currentUser.uid).get(),
         builder:
@@ -71,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   //Show the cover pictures, the username and the bio
                   mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       decoration: BoxDecoration(
@@ -165,15 +152,51 @@ class _ProfilePageState extends State<ProfilePage> {
                       thickness: 0.5,
                     ),
 
-                    //List view to show the tweezes of the user
                     Expanded(
-                      child: ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          itemCount: _itemCount,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Tweezes();
-                          }),
-                    ),
+                        child: FutureBuilder(
+                            future: query.get(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              if (snapshot.hasError) {
+                                return const Text('Something went wrong',
+                                    textAlign: TextAlign.center);
+                              }
+
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                List tweezes = [];
+                                for (var queryDocumentSnapshot
+                                    in snapshot.data!.docs) {
+                                  Map<String, dynamic> data =
+                                      queryDocumentSnapshot.data();
+                                  var content = data["content"];
+                                  var date = data["created_at"];
+                                  var username = data["username"];
+                                  var profilePicture = data["profile_picture"];
+                                  var likes = data['likes'];
+                                  tweezes.add([
+                                    content,
+                                    date,
+                                    username,
+                                    profilePicture,
+                                    likes
+                                  ]);
+                                  // var username = data["user_id"];
+
+                                }
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    children: tweezes
+                                        .map((e) => Card(
+                                              child: Tweezes(
+                                                  e[0], e[1], e[2], e[3], e[4]),
+                                            ))
+                                        .toList(),
+                                  ),
+                                );
+                              }
+                              return Text("Loading tweezes");
+                            }))
                   ],
                 ),
               ),

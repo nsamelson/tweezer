@@ -142,18 +142,6 @@ class _EditProfileState extends State<EditProfile> {
                         ),
                         decoration: InputDecoration(
                             hintText: "Password",
-                            // suffixIcon: IconButton(
-                            //   icon: Icon(
-                            //     _isObscure
-                            //         ? Icons.visibility
-                            //         : Icons.visibility_off,
-                            //   ),
-                            //   onPressed: () {
-                            //     setState(() {
-                            //       _isObscure = !_isObscure;
-                            //     });
-                            //   },
-                            // ),
                             errorBorder: UnderlineInputBorder(
                               borderRadius: BorderRadius.circular(6.0),
                               borderSide: const BorderSide(
