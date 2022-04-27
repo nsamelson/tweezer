@@ -42,7 +42,7 @@ class _DashboardState extends State<Dashboard> {
     var username;
 
     return FutureBuilder(
-      future: ref.get(),
+      future: ref.orderBy('created_at', descending: true).get(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return const Text('Something went wrong',
@@ -57,7 +57,8 @@ class _DashboardState extends State<Dashboard> {
             var date = data["created_at"];
             var username = data["username"];
             var profilePicture = data["profile_picture"];
-            tweezes.add([content, date, username, profilePicture]);
+            var likes = data['likes'];
+            tweezes.add([content, date, username, profilePicture, likes]);
           }
 
           return Scaffold(
@@ -67,7 +68,7 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 children: tweezes
                     .map((e) => Card(
-                          child: Tweezes(e[0], e[1], e[2], e[3]),
+                          child: Tweezes(e[0], e[1], e[2], e[3], e[4]),
                         ))
                     .toList(),
               ),

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tweezer/Views/dashboard.dart';
+import 'package:tweezer/fire_storage.dart';
 import 'package:tweezer/home.dart';
 
 class NewTweez extends StatefulWidget {
@@ -23,6 +25,8 @@ class _NewTweezState extends State<NewTweez> {
     final User _currentUser = widget.user;
     CollectionReference tweezes = db.collection('tweezes');
     DocumentReference userDoc = db.collection('users').doc(_currentUser.uid);
+    final Storage storage = Storage();
+    late String picture;
 
     return FutureBuilder(
       future: userDoc.get(),
@@ -54,20 +58,50 @@ class _NewTweezState extends State<NewTweez> {
             ),
             body: Container(
               padding: const EdgeInsets.only(left: 15, top: 20, right: 15),
-              child: GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                },
-                child: TextFormField(
-                  controller: _tweezTextController,
-                  decoration: InputDecoration(
-                      hintText: "Write a Tweez",
-                      errorBorder: UnderlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                          borderSide: const BorderSide(
-                            color: Colors.red,
-                          ))),
-                ),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: TextFormField(
+                      controller: _tweezTextController,
+                      decoration: InputDecoration(
+                          hintText: "Write a Tweez",
+                          errorBorder: UnderlineInputBorder(
+                              borderRadius: BorderRadius.circular(6.0),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                              ))),
+                    ),
+                  ),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final results = await FilePicker.platform.pickFiles(
+                          allowMultiple: false,
+                          type: FileType.custom,
+                          allowedExtensions: ['png', 'jpg'],
+                        );
+
+                        if (results == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('No file selected')),
+                          );
+                          return null;
+                        }
+
+                        final path = results.files.single.path!;
+                        final fileName = results.files.single.name;
+
+                        storage
+                            .uploadFile(path, fileName)
+                            .then((value) => print('done'));
+                      },
+                      child: Text('upload picture'),
+                    ),
+                  ),
+                ],
               ),
             ),
             floatingActionButton: ElevatedButton(

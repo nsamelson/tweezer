@@ -29,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
     CollectionReference users = db.collection('users');
     final Query query = db
         .collection('tweezes')
+        .orderBy('created_at', descending: true)
         .where("username", isEqualTo: _currentUser.displayName);
 
     return FutureBuilder(
@@ -172,11 +173,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                   var date = data["created_at"];
                                   var username = data["username"];
                                   var profilePicture = data["profile_picture"];
+                                  var likes = data['likes'];
                                   tweezes.add([
                                     content,
                                     date,
                                     username,
-                                    profilePicture
+                                    profilePicture,
+                                    likes
                                   ]);
                                   // var username = data["user_id"];
 
@@ -186,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     children: tweezes
                                         .map((e) => Card(
                                               child: Tweezes(
-                                                  e[0], e[1], e[2], e[3]),
+                                                  e[0], e[1], e[2], e[3], e[4]),
                                             ))
                                         .toList(),
                                   ),

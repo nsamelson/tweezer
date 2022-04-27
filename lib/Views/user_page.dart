@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../drawer/drawer.dart';
 import '../widgets/tweezes.dart';
-import 'edit_profile.dart';
 
 class UserPage extends StatefulWidget {
   final User current_user;
@@ -30,7 +28,7 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userQuery =
+    final Query userQuery =
         db.collection('users').where("username", isEqualTo: page_username);
     final Query tweezesQuery =
         db.collection('tweezes').where("username", isEqualTo: page_username);
@@ -67,6 +65,11 @@ class _UserPageState extends State<UserPage> {
               ]);
               print(_userData[0][0]);
             }
+            final Query relationshipQuery = db
+                .collection('relationships')
+                .where('follower_id', isEqualTo: _currentUser.uid)
+                .where('following_id', isEqualTo: _userData[0][7]);
+
             return Scaffold(
               drawer: const MyDrawer(),
               appBar: AppBar(
@@ -99,27 +102,82 @@ class _UserPageState extends State<UserPage> {
                     const SizedBox(height: 5),
                     Row(children: [
                       const SizedBox(width: 275),
-                      ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              db
-                                  .collection('users')
-                                  .doc(_userData[0][7])
-                                  .update(
-                                      {'followers': FieldValue.increment(1)});
-                              db
-                                  .collection('users')
-                                  .doc(_currentUser.uid)
-                                  .update(
-                                      {'following': FieldValue.increment(1)});
-                            });
-                          },
-                          child: const Text("Follow"),
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                          ))
+                      FutureBuilder(
+                        future: relationshipQuery.get(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.hasError) {
+                            return const Text('Something went wrong',
+                                textAlign: TextAlign.center);
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            for (var queryDocumentSnapshot
+                                in snapshot.data!.docs) {
+                              Map<String, dynamic> relationshipData =
+                                  queryDocumentSnapshot.data();
+                              if (relationshipData.isNotEmpty) {
+                                return ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        db
+                                            .collection('users')
+                                            .doc(_userData[0][7])
+                                            .update({
+                                          'followers': FieldValue.increment(-1)
+                                        });
+                                        db
+                                            .collection('users')
+                                            .doc(_currentUser.uid)
+                                            .update({
+                                          'following': FieldValue.increment(-1)
+                                        });
+
+                                        queryDocumentSnapshot.reference
+                                            .delete();
+                                      });
+                                    },
+                                    child: const Text("Unfollow"),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.grey,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                    ));
+                              }
+                            }
+                          }
+                          return ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  db
+                                      .collection('users')
+                                      .doc(_userData[0][7])
+                                      .update({
+                                    'followers': FieldValue.increment(1)
+                                  });
+                                  db
+                                      .collection('users')
+                                      .doc(_currentUser.uid)
+                                      .update({
+                                    'following': FieldValue.increment(1)
+                                  });
+
+                                  db.collection('relationships').doc().set({
+                                    "created_at": FieldValue.serverTimestamp(),
+                                    "follower_id": _currentUser.uid,
+                                    "following_id": _userData[0][7],
+                                  });
+                                });
+                              },
+                              child: const Text("Follow"),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                              ));
+                        },
+                      )
                     ]),
                     const SizedBox(height: 10),
                     Row(children: [
@@ -179,7 +237,9 @@ class _UserPageState extends State<UserPage> {
 
                     Expanded(
                         child: FutureBuilder(
-                            future: tweezesQuery.get(),
+                            future: tweezesQuery
+                                .orderBy('created_at', descending: true)
+                                .get(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<QuerySnapshot> snapshot) {
                               if (snapshot.hasError) {
@@ -192,17 +252,20 @@ class _UserPageState extends State<UserPage> {
                                 List tweezes = [];
                                 for (var queryDocumentSnapshot
                                     in snapshot.data!.docs) {
-                                  Map<String, dynamic> data =
+                                  Map<String, dynamic> _tweezesData =
                                       queryDocumentSnapshot.data();
-                                  var content = data["content"];
-                                  var date = data["created_at"];
-                                  var username = data["username"];
-                                  var profilePicture = data["profile_picture"];
+                                  var content = _tweezesData["content"];
+                                  var date = _tweezesData["created_at"];
+                                  var username = _tweezesData["username"];
+                                  var profilePicture =
+                                      _tweezesData["profile_picture"];
+                                  var likes = _tweezesData['likes'];
                                   tweezes.add([
                                     content,
                                     date,
                                     username,
-                                    profilePicture
+                                    profilePicture,
+                                    likes
                                   ]);
                                   // var username = data["user_id"];
 
@@ -212,7 +275,7 @@ class _UserPageState extends State<UserPage> {
                                     children: tweezes
                                         .map((e) => Card(
                                               child: Tweezes(
-                                                  e[0], e[1], e[2], e[3]),
+                                                  e[0], e[1], e[2], e[3], e[4]),
                                             ))
                                         .toList(),
                                   ),
