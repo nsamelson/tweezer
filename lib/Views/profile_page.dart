@@ -174,12 +174,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                   var username = data["username"];
                                   var profilePicture = data["profile_picture"];
                                   var likes = data['likes'];
+                                  var image = data['image'];
                                   tweezes.add([
                                     content,
                                     date,
                                     username,
                                     profilePicture,
-                                    likes
+                                    likes,
+                                    image
                                   ]);
                                   // var username = data["user_id"];
 
@@ -188,21 +190,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Column(
                                     children: tweezes
                                         .map((e) => Card(
-                                              child: Tweezes(
-                                                  e[0], e[1], e[2], e[3], e[4]),
+                                              child: Tweezes(e[0], e[1], e[2],
+                                                  e[3], e[4], e[5]),
                                             ))
                                         .toList(),
                                   ),
                                 );
                               }
-                              return Text("Loading tweezes");
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }))
                   ],
                 ),
               ),
             );
           }
-          return const Text('loading');
+          return const Center(child: CircularProgressIndicator());
         });
   }
 }

@@ -45,25 +45,25 @@ class _UserPageState extends State<UserPage> {
             List _userData = [];
             for (var queryDocumentSnapshot in snapshot.data!.docs) {
               Map<String, dynamic> data = queryDocumentSnapshot.data();
-              var profile_cover = data['profile cover'];
-              var profile_picture = data['profile picture'];
+              var profileCover = data['profile cover'];
+              var profilePicture = data['profile picture'];
               var username = data['username'];
               var bio = data['bio'];
-              var nbr_tweezes = data['tweezes'];
+              var nbrTweezes = data['tweezes'];
               var followers = data['followers'];
               var following = data['following'];
               var userId = data['id'];
               _userData.add([
-                profile_cover,
-                profile_picture,
+                profileCover,
+                profilePicture,
                 username,
                 bio,
-                nbr_tweezes,
+                nbrTweezes,
                 followers,
                 following,
                 userId
               ]);
-              print(_userData[0][0]);
+              // print(_userData[0][0]);
             }
             final Query relationshipQuery = db
                 .collection('relationships')
@@ -260,12 +260,14 @@ class _UserPageState extends State<UserPage> {
                                   var profilePicture =
                                       _tweezesData["profile_picture"];
                                   var likes = _tweezesData['likes'];
+                                  var image = _tweezesData['image'];
                                   tweezes.add([
                                     content,
                                     date,
                                     username,
                                     profilePicture,
-                                    likes
+                                    likes,
+                                    image
                                   ]);
                                   // var username = data["user_id"];
 
@@ -274,21 +276,22 @@ class _UserPageState extends State<UserPage> {
                                   child: Column(
                                     children: tweezes
                                         .map((e) => Card(
-                                              child: Tweezes(
-                                                  e[0], e[1], e[2], e[3], e[4]),
+                                              child: Tweezes(e[0], e[1], e[2],
+                                                  e[3], e[4], e[5]),
                                             ))
                                         .toList(),
                                   ),
                                 );
                               }
-                              return Text("Loading tweezes");
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }))
                   ],
                 ),
               ),
             );
           }
-          return const Text('loading');
+          return const Center(child: CircularProgressIndicator());
         });
   }
 }

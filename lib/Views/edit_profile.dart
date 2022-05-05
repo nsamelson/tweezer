@@ -25,8 +25,8 @@ class _EditProfileState extends State<EditProfile> {
     final User _currentUser = widget.user;
     CollectionReference users = db.collection('users');
 
-    print(_currentUser.displayName);
-    print(_currentUser.uid);
+    // print(_currentUser.displayName);
+    // print(_currentUser.uid);
     return FutureBuilder(
         future: users.doc(_currentUser.uid).get(),
         builder:
