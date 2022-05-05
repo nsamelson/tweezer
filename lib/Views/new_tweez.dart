@@ -1,10 +1,8 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:tweezer/Views/dashboard.dart';
 import 'package:tweezer/fire_storage.dart';
 import 'package:tweezer/home.dart';
 
@@ -19,6 +17,8 @@ class NewTweez extends StatefulWidget {
 class _NewTweezState extends State<NewTweez> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final _tweezTextController = TextEditingController();
+  File? picture;
+  String? image_url;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,6 @@ class _NewTweezState extends State<NewTweez> {
     CollectionReference tweezes = db.collection('tweezes');
     DocumentReference userDoc = db.collection('users').doc(_currentUser.uid);
     final Storage storage = Storage();
-    late String picture;
 
     return FutureBuilder(
       future: userDoc.get(),
@@ -45,6 +44,7 @@ class _NewTweezState extends State<NewTweez> {
               snapshot.data!.data() as Map<String, dynamic>;
 
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             appBar: AppBar(
               title: const Text("New Tweez"),
               leading: IconButton(
@@ -76,47 +76,108 @@ class _NewTweezState extends State<NewTweez> {
                     ),
                   ),
                   Center(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final results = await FilePicker.platform.pickFiles(
-                          allowMultiple: false,
-                          type: FileType.custom,
-                          allowedExtensions: ['png', 'jpg'],
-                        );
+                      child: picture != null
+                          ? Image.file(picture!, fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                              return const Text('');
+                            })
+                          : Container(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  final results =
+                                      await FilePicker.platform.pickFiles(
+                                    allowMultiple: false,
+                                    type: FileType.custom,
+                                    allowedExtensions: ['png', 'jpg'],
+                                  );
 
-                        if (results == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('No file selected')),
-                          );
-                          return null;
-                        }
+                                  if (results == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('No file selected')),
+                                    );
+                                    return;
+                                  }
+                                  final path = results.files.single.path!;
+                                  final fileName = results.files.single.name;
 
-                        final path = results.files.single.path!;
-                        final fileName = results.files.single.name;
+                                  setState(() {
+                                    picture = File(path);
+                                  });
 
-                        storage
-                            .uploadFile(path, fileName)
-                            .then((value) => print('done'));
-                      },
-                      child: Text('upload picture'),
-                    ),
-                  ),
+                                  storage
+                                      .uploadFile(path, fileName)
+                                      .then((value) {
+                                    setState(() {
+                                      image_url = value.toString();
+                                    });
+                                  });
+                                },
+                                child: const Text('upload picture'),
+                              ),
+                            )),
                 ],
               ),
             ),
             floatingActionButton: ElevatedButton(
               child: const Text("Post Tweez"),
               onPressed: () {
-                if (_tweezTextController.text.isNotEmpty) {
-                  tweezes.add({
-                    'content': _tweezTextController.text,
-                    'created_at':
-                        DateFormat('dd-MM-yyyy - kk:mm').format(DateTime.now()),
-                    'likes': 0,
-                    'user_id': userDoc,
-                    'username': _userData["username"],
-                    'profile_picture': _userData['profile picture'],
-                  }).then((value) => print("Tweez posted"));
+                if (_tweezTextController.text.isNotEmpty && image_url == null) {
+                  addTweezDB(
+                          _tweezTextController.text,
+                          "",
+                          FieldValue.serverTimestamp(),
+                          0,
+                          _currentUser.uid,
+                          _userData["username"],
+                          _userData['profile picture'])
+                      .then((value) => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                              const SnackBar(content: Text('Tweez posted'))));
+
+                  userDoc.update({'tweezes': FieldValue.increment(1)});
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => Home(user: _currentUser),
+                    ),
+                    ModalRoute.withName('/'),
+                  );
+                } else if (_tweezTextController.text.isNotEmpty &&
+                    image_url != null) {
+                  addTweezDB(
+                          _tweezTextController.text,
+                          image_url!,
+                          FieldValue.serverTimestamp(),
+                          0,
+                          _currentUser.uid,
+                          _userData["username"],
+                          _userData['profile picture'])
+                      .then((value) => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                              const SnackBar(content: Text('Tweez posted'))));
+
+                  userDoc.update({'tweezes': FieldValue.increment(1)});
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => Home(user: _currentUser),
+                    ),
+                    ModalRoute.withName('/'),
+                  );
+                } else if (_tweezTextController.text.isEmpty &&
+                    image_url != null) {
+                  addTweezDB(
+                          _tweezTextController.text,
+                          image_url!,
+                          FieldValue.serverTimestamp(),
+                          0,
+                          _currentUser.uid,
+                          _userData["username"],
+                          _userData['profile picture'])
+                      .then((value) => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                              const SnackBar(content: Text('Tweez posted'))));
 
                   userDoc.update({'tweezes': FieldValue.increment(1)});
 
@@ -127,15 +188,30 @@ class _NewTweezState extends State<NewTweez> {
                     ModalRoute.withName('/'),
                   );
                 } else {
-                  print("Please write a tweez");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please write a tweez')),
+                  );
                 }
               },
             ),
           );
         }
-
-        return Text("Loading");
+        return const Center(child: CircularProgressIndicator());
       },
     );
+  }
+
+  Future<void> addTweezDB(String content, String image, FieldValue createdAt,
+      int likes, String userId, String username, String profilePicture) async {
+    CollectionReference tweezes = db.collection('tweezes');
+    tweezes.add({
+      'content': content,
+      'image': image,
+      'created_at': createdAt,
+      'likes': likes,
+      'user_id': userId,
+      'username': username,
+      'profile_picture': profilePicture,
+    });
   }
 }

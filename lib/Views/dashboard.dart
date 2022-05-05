@@ -17,19 +17,27 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  int _itemCount = 0;
+  List following_ids = [];
 
-  Future<int> getCount() async {
-    final QuerySnapshot qSnap = await db.collection('tweezes').get();
-    final int nbr = qSnap.size;
-    return nbr;
+  Future<List> getFollowing() async {
+    List followings = [];
+    final QuerySnapshot qSnap = await db
+        .collection('relationships')
+        .where("follower_id", isEqualTo: widget.user.uid)
+        .get();
+    for (var queryDocumentSnapshot in qSnap.docs) {
+      Map<String, dynamic> followingData = queryDocumentSnapshot.data();
+      var followedId = followingData["following_id"];
+      followings.add(followedId);
+    }
+    return followings;
   }
 
   @override
   void initState() {
-    getCount().then((value) {
+    getFollowing().then((value) {
       setState(() {
-        _itemCount = value;
+        following_ids = value;
       });
     });
     super.initState();
@@ -39,8 +47,6 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     final User _currentUser = widget.user;
     CollectionReference ref = db.collection('tweezes');
-    var username;
-
     return FutureBuilder(
       future: ref.orderBy('created_at', descending: true).get(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -58,7 +64,13 @@ class _DashboardState extends State<Dashboard> {
             var username = data["username"];
             var profilePicture = data["profile_picture"];
             var likes = data['likes'];
-            tweezes.add([content, date, username, profilePicture, likes]);
+            var image = data['image'];
+            var userId = data['user_id'];
+
+            if (following_ids.contains(userId)) {
+              tweezes
+                  .add([content, date, username, profilePicture, likes, image]);
+            }
           }
 
           return Scaffold(
@@ -68,7 +80,7 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 children: tweezes
                     .map((e) => Card(
-                          child: Tweezes(e[0], e[1], e[2], e[3], e[4]),
+                          child: Tweezes(e[0], e[1], e[2], e[3], e[4], e[5]),
                         ))
                     .toList(),
               ),
@@ -81,11 +93,11 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 );
               },
-              child: Icon(Icons.edit),
+              child: const Icon(Icons.edit),
             ),
           );
         }
-        return Text("loading");
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }

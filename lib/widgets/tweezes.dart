@@ -8,12 +8,13 @@ import '../Views/user_page.dart';
 
 class Tweezes extends StatefulWidget {
   final String content;
-  final String date;
+  final Timestamp date;
   final String username;
   final String profilePicture;
   final int likes;
-  const Tweezes(
-      this.content, this.date, this.username, this.profilePicture, this.likes,
+  final String image;
+  const Tweezes(this.content, this.date, this.username, this.profilePicture,
+      this.likes, this.image,
       {Key? key})
       : super(key: key);
 
@@ -23,8 +24,6 @@ class Tweezes extends StatefulWidget {
 
 class _TweezesState extends State<Tweezes> {
   List user_likes = [];
-  late bool _userLiked;
-
   @override
   Widget build(BuildContext context) {
     final TextStyle? contentTheme = Theme.of(context).textTheme.bodyText1;
@@ -36,8 +35,10 @@ class _TweezesState extends State<Tweezes> {
         .where("content", isEqualTo: widget.content)
         .where("user_liked", arrayContains: connectedUsername);
 
+    DateTime dates = DateTime.parse(widget.date.toDate().toString());
+
     return AspectRatio(
-        aspectRatio: 5 / 2,
+        aspectRatio: widget.image == "" ? 5 / 2 : 5 / 4,
         child: Column(
           children: [
             Row(
@@ -88,6 +89,16 @@ class _TweezesState extends State<Tweezes> {
                             Text(widget.content, style: contentTheme),
                           ],
                         ),
+                        Expanded(
+                          // flex: 5,
+                          child: Center(
+                            child:
+                                Image.network(widget.image, fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                              return const Text('');
+                            }),
+                          ),
+                        )
                       ],
                     ),
                   )
@@ -130,8 +141,10 @@ class _TweezesState extends State<Tweezes> {
                   onPressed: () {},
                   icon: const Icon(Icons.share),
                 ),
-                const SizedBox(width: 90),
-                Text(widget.date)
+                Expanded(
+                  child: Text(DateFormat('dd-MM-yyyy - kk:mm').format(dates),
+                      textAlign: TextAlign.right),
+                )
               ],
             )
           ],
