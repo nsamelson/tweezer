@@ -19,6 +19,7 @@ class _DashboardState extends State<Dashboard> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   List following_ids = [];
 
+  //get the list of users you follow
   Future<List> getFollowing() async {
     List followings = [];
     final QuerySnapshot qSnap = await db
@@ -37,6 +38,7 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     getFollowing().then((value) {
       setState(() {
+        // set the list
         following_ids = value;
       });
     });
@@ -46,7 +48,12 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final User _currentUser = widget.user;
-    CollectionReference ref = db.collection('tweezes');
+
+    // get the tweezes and order by descending time
+    //  if the user of the tweez is one of the users that the current_user is following
+    CollectionReference ref =
+        db.collection('tweezes');
+        
     return FutureBuilder(
       future: ref.orderBy('created_at', descending: true).get(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -55,8 +62,11 @@ class _DashboardState extends State<Dashboard> {
               textAlign: TextAlign.center);
         }
 
+        // if call was successful
         if (snapshot.connectionState == ConnectionState.done) {
           List tweezes = [];
+
+          //  get the tweezes
           for (var queryDocumentSnapshot in snapshot.data!.docs) {
             Map<String, dynamic> data = queryDocumentSnapshot.data();
             var content = data["content"];
@@ -66,11 +76,24 @@ class _DashboardState extends State<Dashboard> {
             var likes = data['likes'];
             var image = data['image'];
             var userId = data['user_id'];
+            var userLiked = data['user_liked'];
+            var tweezId = queryDocumentSnapshot.id;
 
-            if (following_ids.contains(userId)) {
-              tweezes
-                  .add([content, date, username, profilePicture, likes, image]);
+            if( following_ids.contains(userId)){
+              tweezes.add([
+              content,
+              date,
+              username,
+              profilePicture,
+              likes,
+              image,
+              tweezId,
+              userLiked
+            ]);
             }
+            
+
+            // }
           }
 
           return Scaffold(
@@ -78,13 +101,18 @@ class _DashboardState extends State<Dashboard> {
             appBar: AppBar(title: const Text('Dashboard')),
             body: SingleChildScrollView(
               child: Column(
+                // create Tweez cards
                 children: tweezes
                     .map((e) => Card(
-                          child: Tweezes(e[0], e[1], e[2], e[3], e[4], e[5]),
+                          // pass data in the card (Tweez widget)
+                          child: Tweezes(
+                              e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7]),
                         ))
                     .toList(),
               ),
             ),
+
+            // floating button to create a new tweez
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(

@@ -43,6 +43,7 @@ class _UserPageState extends State<UserPage> {
 
           if (snapshot.connectionState == ConnectionState.done) {
             List _userData = [];
+            // get user info from DB
             for (var queryDocumentSnapshot in snapshot.data!.docs) {
               Map<String, dynamic> data = queryDocumentSnapshot.data();
               var profileCover = data['profile cover'];
@@ -52,7 +53,8 @@ class _UserPageState extends State<UserPage> {
               var nbrTweezes = data['tweezes'];
               var followers = data['followers'];
               var following = data['following'];
-              var userId = data['id'];
+              // var userId = data['id'];
+              var userId = queryDocumentSnapshot.id;
               _userData.add([
                 profileCover,
                 profilePicture,
@@ -63,13 +65,16 @@ class _UserPageState extends State<UserPage> {
                 following,
                 userId
               ]);
-              // print(_userData[0][0]);
+              // print(_userData[0][7]);
             }
+
+            // relationship btween me and searched user
             final Query relationshipQuery = db
                 .collection('relationships')
                 .where('follower_id', isEqualTo: _currentUser.uid)
                 .where('following_id', isEqualTo: _userData[0][7]);
 
+            // show user info
             return Scaffold(
               drawer: const MyDrawer(),
               appBar: AppBar(
@@ -116,6 +121,8 @@ class _UserPageState extends State<UserPage> {
                                 in snapshot.data!.docs) {
                               Map<String, dynamic> relationshipData =
                                   queryDocumentSnapshot.data();
+
+                              // if I'm following the user
                               if (relationshipData.isNotEmpty) {
                                 return ElevatedButton(
                                     onPressed: () {
@@ -147,6 +154,7 @@ class _UserPageState extends State<UserPage> {
                               }
                             }
                           }
+                          // else I don't follow the user
                           return ElevatedButton(
                               onPressed: () {
                                 setState(() {
@@ -179,6 +187,7 @@ class _UserPageState extends State<UserPage> {
                         },
                       )
                     ]),
+                    // Show user data
                     const SizedBox(height: 10),
                     Row(children: [
                       const SizedBox(width: 25),
@@ -235,6 +244,7 @@ class _UserPageState extends State<UserPage> {
                       thickness: 0.5,
                     ),
 
+                    // show the tweezes of the user I searched
                     Expanded(
                         child: FutureBuilder(
                             future: tweezesQuery
@@ -261,13 +271,17 @@ class _UserPageState extends State<UserPage> {
                                       _tweezesData["profile_picture"];
                                   var likes = _tweezesData['likes'];
                                   var image = _tweezesData['image'];
+                                  var userLiked = _tweezesData['user_liked'];
+                                  var tweezId = queryDocumentSnapshot.id;
                                   tweezes.add([
                                     content,
                                     date,
                                     username,
                                     profilePicture,
                                     likes,
-                                    image
+                                    image,
+                                    tweezId,
+                                    userLiked
                                   ]);
                                   // var username = data["user_id"];
 
@@ -277,7 +291,7 @@ class _UserPageState extends State<UserPage> {
                                     children: tweezes
                                         .map((e) => Card(
                                               child: Tweezes(e[0], e[1], e[2],
-                                                  e[3], e[4], e[5]),
+                                                  e[3], e[4], e[5], e[6], e[7]),
                                             ))
                                         .toList(),
                                   ),

@@ -13,8 +13,12 @@ class Tweezes extends StatefulWidget {
   final String profilePicture;
   final int likes;
   final String image;
+  final String tweezId;
+  final List userLiked;
+
+  // arguments of Tweezes object
   const Tweezes(this.content, this.date, this.username, this.profilePicture,
-      this.likes, this.image,
+      this.likes, this.image, this.tweezId, this.userLiked,
       {Key? key})
       : super(key: key);
 
@@ -23,21 +27,22 @@ class Tweezes extends StatefulWidget {
 }
 
 class _TweezesState extends State<Tweezes> {
-  List user_likes = [];
+
   @override
   Widget build(BuildContext context) {
     final TextStyle? contentTheme = Theme.of(context).textTheme.bodyText1;
+
+    // get the currently connected user
     final User connectedUser = FirebaseAuth.instance.currentUser!;
-    final String? connectedUsername = connectedUser.displayName;
-    Query liked = FirebaseFirestore.instance
-        .collection('tweezes')
-        .where("username", isEqualTo: widget.username)
-        .where("content", isEqualTo: widget.content)
-        .where("user_liked", arrayContains: connectedUsername);
+
+    // check if the current user has liked the tweez
+    CollectionReference tweezDoc =
+        FirebaseFirestore.instance.collection('tweezes');
 
     DateTime dates = DateTime.parse(widget.date.toDate().toString());
 
     return AspectRatio(
+        // adjust card size
         aspectRatio: widget.image == "" ? 5 / 2 : 5 / 4,
         child: Column(
           children: [
@@ -60,6 +65,8 @@ class _TweezesState extends State<Tweezes> {
                           child: Text(widget.username,
                               style: const TextStyle(
                                   fontSize: 17.5, fontWeight: FontWeight.bold)),
+
+                          // if click on the username, redirect to the user profile page
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -73,6 +80,7 @@ class _TweezesState extends State<Tweezes> {
               ],
             ),
             Expanded(
+              // autosize the card
               flex: 3,
               child: Row(
                 children: <Widget>[
@@ -86,6 +94,7 @@ class _TweezesState extends State<Tweezes> {
                         Row(
                           children: [
                             const SizedBox(width: 10),
+                            // text of the tweez
                             Text(widget.content, style: contentTheme),
                           ],
                         ),
@@ -93,6 +102,7 @@ class _TweezesState extends State<Tweezes> {
                           // flex: 5,
                           child: Center(
                             child:
+                                // image of the tweez if there is an image
                                 Image.network(widget.image, fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
                               return const Text('');
@@ -106,25 +116,32 @@ class _TweezesState extends State<Tweezes> {
               ),
             ),
             Row(
+              // buttons
               children: [
                 const SizedBox(width: 10),
                 FutureBuilder(
-                    future: liked.get(),
+                    future: tweezDoc.doc(widget.tweezId).get(),
                     builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
                       if (snapshot.hasError) {
                         return const Text('Something went wrong',
                             textAlign: TextAlign.center);
                       }
                       if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.data!.docs.isNotEmpty) {
-                          return LikeButton(
+
+                        // if already liked by the current user
+                        if (snapshot.data!.exists) {
+                          if (snapshot.data!["user_liked"]?.contains(connectedUser.displayName)){
+                            return LikeButton(
                             likeCount: widget.likes,
                             isLiked: true,
                             onTap: onLikeButtonTapped,
                           );
+                          }
+                          
                         }
                       }
+                      // if not liked yet
                       return LikeButton(
                         likeCount: widget.likes,
                         isLiked: false,
@@ -151,31 +168,28 @@ class _TweezesState extends State<Tweezes> {
         ));
   }
 
+  // like or unlike tweez
   Future<bool> onLikeButtonTapped(bool isLiked) async {
     final String? connectedUser =
         FirebaseAuth.instance.currentUser!.displayName;
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
+
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection('tweezes')
-        .where("username", isEqualTo: widget.username)
-        .where("content", isEqualTo: widget.content)
+        .doc(widget.tweezId)
         .get();
 
-    if (!isLiked && snapshot.docs.isNotEmpty) {
-      for (var doc in snapshot.docs) {
-        user_likes.add(connectedUser);
-        doc.reference.update({
-          "likes": FieldValue.increment(1),
-          "user_liked": FieldValue.arrayUnion(user_likes)
-        });
-      }
+    if (!isLiked && snapshot.exists) {
+      snapshot.reference.update({
+        "likes": FieldValue.increment(1),
+        "user_liked": FieldValue.arrayUnion([connectedUser])
+      });
     }
-    if (isLiked && snapshot.docs.isNotEmpty) {
-      for (var doc in snapshot.docs) {
-        doc.reference.update({
-          "likes": FieldValue.increment(-1),
-          "user_liked": FieldValue.arrayRemove(user_likes)
-        });
-      }
+    if (isLiked && snapshot.exists) {
+      snapshot.reference.update({
+        "likes": FieldValue.increment(-1),
+        "user_liked": FieldValue.arrayRemove([connectedUser])
+      });
+      // }
     }
     return !isLiked;
   }

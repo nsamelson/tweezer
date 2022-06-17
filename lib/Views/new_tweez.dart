@@ -23,7 +23,8 @@ class _NewTweezState extends State<NewTweez> {
   @override
   Widget build(BuildContext context) {
     final User _currentUser = widget.user;
-    CollectionReference tweezes = db.collection('tweezes');
+
+    // CollectionReference tweezes = db.collection('tweezes');
     DocumentReference userDoc = db.collection('users').doc(_currentUser.uid);
     final Storage storage = Storage();
 
@@ -76,6 +77,7 @@ class _NewTweezState extends State<NewTweez> {
                     ),
                   ),
                   Center(
+                    // preview of selected image
                       child: picture != null
                           ? Image.file(picture!, fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
@@ -84,6 +86,8 @@ class _NewTweezState extends State<NewTweez> {
                           : Container(
                               child: ElevatedButton(
                                 onPressed: () async {
+
+                                  // pick file in phone storage
                                   final results =
                                       await FilePicker.platform.pickFiles(
                                     allowMultiple: false,
@@ -98,6 +102,8 @@ class _NewTweezState extends State<NewTweez> {
                                     );
                                     return;
                                   }
+
+                                  // set folder path of the selected image
                                   final path = results.files.single.path!;
                                   final fileName = results.files.single.name;
 
@@ -105,6 +111,7 @@ class _NewTweezState extends State<NewTweez> {
                                     picture = File(path);
                                   });
 
+                                  // upload in firebase storage and get the url back
                                   storage
                                       .uploadFile(path, fileName)
                                       .then((value) {
@@ -122,6 +129,8 @@ class _NewTweezState extends State<NewTweez> {
             floatingActionButton: ElevatedButton(
               child: const Text("Post Tweez"),
               onPressed: () {
+
+                // if no image but text
                 if (_tweezTextController.text.isNotEmpty && image_url == null) {
                   addTweezDB(
                           _tweezTextController.text,
@@ -135,6 +144,7 @@ class _NewTweezState extends State<NewTweez> {
                           .showSnackBar(
                               const SnackBar(content: Text('Tweez posted'))));
 
+                  // update number of tweezes
                   userDoc.update({'tweezes': FieldValue.increment(1)});
 
                   Navigator.of(context).pushAndRemoveUntil(
@@ -143,7 +153,33 @@ class _NewTweezState extends State<NewTweez> {
                     ),
                     ModalRoute.withName('/'),
                   );
-                } else if (_tweezTextController.text.isNotEmpty &&
+                
+                } // if image and text
+                 else if (_tweezTextController.text.isNotEmpty &&
+                    image_url != null) {
+                  addTweezDB(
+                          _tweezTextController.text,
+                          image_url!,
+                          FieldValue.serverTimestamp(),
+                          0,
+                          _currentUser.uid,
+                          _userData["username"],
+                          _userData['profile picture'])
+                      .then((value) => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                              const SnackBar(content: Text('Tweez posted'))));
+
+                  userDoc.update({'tweezes': FieldValue.increment(1)});
+
+                  // return home
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => Home(user: _currentUser),
+                    ),
+                    ModalRoute.withName('/'),
+                  );
+                } // if no text but picture
+                else if (_tweezTextController.text.isEmpty &&
                     image_url != null) {
                   addTweezDB(
                           _tweezTextController.text,
@@ -165,29 +201,8 @@ class _NewTweezState extends State<NewTweez> {
                     ),
                     ModalRoute.withName('/'),
                   );
-                } else if (_tweezTextController.text.isEmpty &&
-                    image_url != null) {
-                  addTweezDB(
-                          _tweezTextController.text,
-                          image_url!,
-                          FieldValue.serverTimestamp(),
-                          0,
-                          _currentUser.uid,
-                          _userData["username"],
-                          _userData['profile picture'])
-                      .then((value) => ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                              const SnackBar(content: Text('Tweez posted'))));
-
-                  userDoc.update({'tweezes': FieldValue.increment(1)});
-
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => Home(user: _currentUser),
-                    ),
-                    ModalRoute.withName('/'),
-                  );
-                } else {
+                } // if no text and no image
+                else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Please write a tweez')),
                   );
@@ -212,6 +227,7 @@ class _NewTweezState extends State<NewTweez> {
       'user_id': userId,
       'username': username,
       'profile_picture': profilePicture,
+      'user_liked': []
     });
   }
 }

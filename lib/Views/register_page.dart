@@ -144,11 +144,13 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+// register to firebase auth
   Future registeCheck() async {
     setState(() {
       _isProcessing = true;
     });
 
+    // if fields are valid, create
     if (_registerFormKey.currentState!.validate()) {
       User? user = await FireAuth.registerUsingEmailPassword(
         username: _usernameTextController.text,
@@ -160,6 +162,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _isProcessing = false;
       });
 
+      // if user connected, send to home page
       if (user != null) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(

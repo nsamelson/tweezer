@@ -43,6 +43,7 @@ class _EditProfileState extends State<EditProfile> {
             final Map<String, dynamic> _userData =
                 snapshot.data!.data() as Map<String, dynamic>;
 
+            // fill input texts from connected user
             _usernameTextController.text = _userData['username'];
             _bioTextController.text = _userData['bio'];
             _passwordTextController.text = _userData['password'];

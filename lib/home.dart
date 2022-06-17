@@ -18,12 +18,14 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
 
+  // pages that are called
   final List<Widget> tabs = [
     Dashboard(FirebaseAuth.instance.currentUser!),
     Search(FirebaseAuth.instance.currentUser!),
     ProfilePage(FirebaseAuth.instance.currentUser!)
   ];
 
+  // bottom nav bar
   @override
   Widget build(BuildContext context) {
     return Scaffold(

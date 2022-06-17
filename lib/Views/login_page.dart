@@ -31,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
 
     User? user = FirebaseAuth.instance.currentUser;
 
+    // if user already connected => redirect to home page
     if (user != null) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -76,6 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                         key: _formKey,
                         child: Column(
                           children: <Widget>[
+                            // EMAIL FIELD
                             TextFormField(
                               controller: _emailTextController,
                               focusNode: _focusEmail,
@@ -90,13 +92,14 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             const SizedBox(height: 8.0),
+                            // PASSWORD FIELD
                             TextFormField(
                               controller: _passwordTextController,
                               focusNode: _focusPassword,
                               obscureText: _isObscure,
                               validator: (value) => Validator.validatePassword(
                                 password: value.toString(),
-                              ),
+                              ),                              
                               decoration: InputDecoration(
                                 hintText: "Password",
                                 suffixIcon: IconButton(
@@ -134,7 +137,8 @@ class _LoginPageState extends State<LoginPage> {
                                               setState(() {
                                                 _isProcessing = true;
                                               });
-
+                                              
+                                              // login to the app
                                               User? user = await FireAuth
                                                   .signInUsingEmailPassword(
                                                 email:
@@ -148,6 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                                                 _isProcessing = false;
                                               });
 
+                                              // if connected, send to home
                                               if (user != null) {
                                                 Navigator.of(context)
                                                     .pushReplacement(
@@ -182,6 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     const RegisterPage(),
+                                                    // send to register page
                                               ),
                                             );
                                           },

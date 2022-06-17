@@ -175,13 +175,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                   var profilePicture = data["profile_picture"];
                                   var likes = data['likes'];
                                   var image = data['image'];
+                                  var userLiked = data['user_liked'];
+                                  var tweezId = queryDocumentSnapshot.id;
                                   tweezes.add([
                                     content,
                                     date,
                                     username,
                                     profilePicture,
                                     likes,
-                                    image
+                                    image,
+                                    tweezId,
+                                    userLiked
                                   ]);
                                   // var username = data["user_id"];
 
@@ -190,8 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Column(
                                     children: tweezes
                                         .map((e) => Card(
-                                              child: Tweezes(e[0], e[1], e[2],
-                                                  e[3], e[4], e[5]),
+                                              child: Tweezes(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7]),
                                             ))
                                         .toList(),
                                   ),

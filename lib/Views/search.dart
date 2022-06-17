@@ -16,8 +16,10 @@ class _SearchState extends State<Search> {
   late List<String> _searchHistory = [];
   late List<String> filteredSearchHistory = [];
   String selectedTerm = "";
+
   FirebaseFirestore db = FirebaseFirestore.instance;
   late User _currentUser;
+  late TextEditingController _controller;
 
   // filter the search from the history (if I type "t", only "test" will remain)
   List<String> filteredSearchTerms({
@@ -32,6 +34,7 @@ class _SearchState extends State<Search> {
     }
   }
 
+  // get the search_history field from the current user collection
   Future<void> getSearchHistory() async {
     DocumentSnapshot reference =
         await db.collection('users').doc(_currentUser.uid).get();
@@ -44,6 +47,7 @@ class _SearchState extends State<Search> {
     // return history;
   }
 
+  // update the search history field in the database
   Future<void> setSearchHistory() async {
     FirebaseFirestore.instance
         .collection('users')
@@ -51,7 +55,7 @@ class _SearchState extends State<Search> {
         .update({'search history': _searchHistory});
   }
 
-  // add a new searched item to history
+  // add searched term item to history in app
   void addSearchTerm(String term) {
     if (_searchHistory.contains(term)) {
       putSearchTermFirst(term);
@@ -65,28 +69,32 @@ class _SearchState extends State<Search> {
     filteredSearchHistory = filteredSearchTerms(filter: null);
   }
 
+  // delete a searched item in the history
   void deleteSearchTerm(String term) {
     _searchHistory.removeWhere((element) => element == term);
     filteredSearchHistory = filteredSearchTerms(filter: null);
   }
 
+  // delete already searched term and put in first position
   void putSearchTermFirst(String term) {
     deleteSearchTerm(term);
     addSearchTerm(term);
   }
 
+  // delete input field
   void clearSearch() {
     _controller.clear();
     selectedTerm = "";
   }
 
+  // go to the selected user page
   void showProfile(user) async {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => UserPage(_currentUser, user[0])),
     );
   }
 
-  late TextEditingController _controller;
+  
 
   @override
   void initState() {
@@ -169,6 +177,8 @@ class _SearchState extends State<Search> {
                         color: Colors.white,
                         elevation: 4,
                         child: Builder(builder: (context) {
+
+                          // if the filtered search history list is empty
                           if (filteredSearchHistory.isEmpty &&
                               selectedTerm == "") {
                             return Container(
@@ -182,7 +192,9 @@ class _SearchState extends State<Search> {
                                 style: Theme.of(context).textTheme.caption,
                               ),
                             );
-                          } else {
+                          } 
+                          // if the filtered search history list is not empty
+                          else {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               // mainAxisAlignment: MainAxisAlignment.center,
@@ -218,8 +230,9 @@ class _SearchState extends State<Search> {
                         }),
                       );
                     }
+                    // default of futurebuilder
                     return Material(
-                        color: Colors.white,
+                        color: Color.fromARGB(255, 255, 255, 255),
                         elevation: 4,
                         child: Container(
                           height: 56,
@@ -233,6 +246,7 @@ class _SearchState extends State<Search> {
                           ),
                         ));
                   }),
+
               //search results
               Builder(builder: (context) {
                 if (selectedTerm == "") {
@@ -252,6 +266,8 @@ class _SearchState extends State<Search> {
                         ],
                       ));
                 } else {
+
+                  // filter the users corresponding to the searchterm
                   String limit = "";
                   if (selectedTerm != "") {
                     final strFrontCode =
@@ -318,6 +334,7 @@ class _SearchState extends State<Search> {
                                 .toList(),
                           );
                         }
+                        // by default
                         return Center(
                             heightFactor: 5,
                             child: Column(
