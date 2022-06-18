@@ -26,7 +26,7 @@ The application runs on flutter and uses the following services of [Firebase](ht
 10. As a user, I want to see the new posts of the users I follow.
 
 ## 4. Preview:
-![image](https://user-images.githubusercontent.com/61003408/174428789-cde362cf-ed7c-4d8c-b136-0d66c60c9bb5.png) ![image](https://user-images.githubusercontent.com/61003408/174428777-6ba755d4-d44f-4772-afc4-361bad60e749.png
+![image](https://user-images.githubusercontent.com/61003408/174428789-cde362cf-ed7c-4d8c-b136-0d66c60c9bb5.png)
 
 
 
