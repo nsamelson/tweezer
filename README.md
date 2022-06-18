@@ -7,7 +7,12 @@
 - SAMELSON Nicolas 17288
 - ROQUERO Pedro 17010
 
-## 2. User stories
+## 2. Introduction
+
+This project consists of creating a social network in the course of [Mobile development](https://quentin.lurkin.xyz/courses/mobile/projet2022/index.html).  
+The application runs on flutter and uses the following services of [Firebase](https://console.firebase.google.com/u/0/) : Authentication, Firestore Database and Storage.
+
+## 3. User stories
 
 1. As a user, I want to create an account;
 2. As a user, I want to connect to my account;
@@ -20,7 +25,7 @@
 9. As a user, I want to follow a user;
 10. As a user, I want to see the new posts of the users I follow.
 
-## 3. Getting Started
+## 4. Getting Started
 
 This project is a starting point for a Flutter application.
 
