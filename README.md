@@ -25,7 +25,12 @@ The application runs on flutter and uses the following services of [Firebase](ht
 9. As a user, I want to follow a user;
 10. As a user, I want to see the new posts of the users I follow.
 
-## 4. Getting Started
+## 4. Preview:
+![image](https://user-images.githubusercontent.com/61003408/174428603-d72fef7b-be26-4eaf-ab34-dd7ed3224d29.png) ![image](https://user-images.githubusercontent.com/61003408/174428743-b3157826-e114-44b1-9145-a10f3a14395f.png)
+
+
+
+## 5. Getting Started
 
 This project is a starting point for a Flutter application.
 
